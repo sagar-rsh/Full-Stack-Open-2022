@@ -4,12 +4,15 @@ import phonebookService from './services/persons';
 import Filter from './components/Filter';
 import PersonsForm from './components/PersonsForm';
 import Persons from './components/Persons';
+import Notification from './components/Notification';
+import './index.css';
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState('');
   const [newNumber, setNewNumber] = useState('');
   const [filterVal, setFilterVal] = useState('');
+  const [statusMessagge, setStatusMessage] = useState(null);
 
   useEffect(() => {
     phonebookService.getPersons().then((personsList) => {
@@ -36,10 +39,25 @@ const App = () => {
                 person.name !== newName ? person : returnedPerson
               )
             );
+            setNewName('');
+            setNewNumber('');
+            setStatusMessage(`Updated ${returnedPerson.name}'s number`);
+            setTimeout(() => {
+              setStatusMessage(null);
+            }, 5000);
+          })
+          .catch((error) => {
+            setStatusMessage(
+              `Information of ${updatedPerson.name} has already been removed from server`
+            );
+            setPersons(
+              persons.filter((person) => person.id !== updatedPerson.id)
+            );
+            setTimeout(() => {
+              setStatusMessage(null);
+            }, 5000);
           });
       }
-      setNewName('');
-      setNewNumber('');
       return;
     }
 
@@ -50,8 +68,12 @@ const App = () => {
 
     phonebookService.createPerson(personObject).then((returnedPerson) => {
       setPersons(persons.concat(returnedPerson));
+      setStatusMessage(`Added ${returnedPerson.name}`);
       setNewName('');
       setNewNumber('');
+      setTimeout(() => {
+        setStatusMessage(null);
+      }, 5000);
     });
   };
 
@@ -69,6 +91,10 @@ const App = () => {
     if (window.confirm(`Delete ${personToDelete.name} ?`)) {
       phonebookService.deletePerson(id).then((deletedPerson) => {
         setPersons(persons.filter((person) => person.id !== id));
+        setStatusMessage(`${personToDelete.name} has been deleted`);
+        setTimeout(() => {
+          setStatusMessage(null);
+        }, 5000);
       });
     }
   };
@@ -83,6 +109,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
+      <Notification message={statusMessagge} />
       <Filter filterVal={filterVal} setFilterVal={setFilterVal} />
       <h2>add a new</h2>
       <PersonsForm
