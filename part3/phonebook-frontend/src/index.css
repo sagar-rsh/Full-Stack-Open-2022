@@ -1,0 +1,9 @@
+.status {
+  color: green;
+  background-color: lightgray;
+  font-size: 20px;
+  border: 5px solid green;
+  border-radius: 5px;
+  padding: 10px;
+  margin: 10px 0px;
+}
