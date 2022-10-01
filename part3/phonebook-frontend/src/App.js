@@ -66,15 +66,23 @@ const App = () => {
       number: newNumber,
     };
 
-    phonebookService.createPerson(personObject).then((returnedPerson) => {
-      setPersons(persons.concat(returnedPerson));
-      setStatusMessage(`Added ${returnedPerson.name}`);
-      setNewName('');
-      setNewNumber('');
-      setTimeout(() => {
-        setStatusMessage(null);
-      }, 5000);
-    });
+    phonebookService
+      .createPerson(personObject)
+      .then((returnedPerson) => {
+        setPersons(persons.concat(returnedPerson));
+        setStatusMessage(`Added ${returnedPerson.name}`);
+        setNewName('');
+        setNewNumber('');
+        setTimeout(() => {
+          setStatusMessage(null);
+        }, 5000);
+      })
+      .catch((error) => {
+        setStatusMessage(error.response.data.error);
+        setTimeout(() => {
+          setStatusMessage(null);
+        }, 5000);
+      });
   };
 
   const handleNewName = (event) => {

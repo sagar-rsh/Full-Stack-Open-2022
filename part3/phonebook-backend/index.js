@@ -56,7 +56,7 @@ app.put('/api/persons/:id', (request, response, next) => {
   Person.findOneAndUpdate(
     { name: body.name },
     { number: body.number },
-    { new: true }
+    { new: true, runValidators: true, context: 'query' }
   )
     .then((person) => response.json(person))
     .catch((error) => next(error));
@@ -71,12 +71,21 @@ app.post('/api/persons', (request, response, next) => {
     });
   }
 
-  const person = new Person({
-    name: body.name,
-    number: body.number,
-  });
+  Person.exists({ name: body.name }).then((person) => {
+    if (person) {
+      return response.status(409).send('Name already exists in phonebook');
+    } else {
+      const person = new Person({
+        name: body.name,
+        number: body.number,
+      });
 
-  person.save().then((savedPerson) => response.json(savedPerson));
+      person
+        .save()
+        .then((savedPerson) => response.json(savedPerson))
+        .catch((error) => next(error));
+    }
+  });
 });
 
 app.delete('/api/persons/:id', (request, response, next) => {
@@ -95,8 +104,10 @@ app.use(unknownEndpoint);
 const errorHandler = (error, request, response, next) => {
   console.error(error.message);
 
-  if ((error.name = 'CastError')) {
+  if (error.name === 'CastError') {
     return response.status(400).send({ error: 'malformed id' });
+  } else if (error.name === 'ValidationError') {
+    return response.status(400).send({ error: error.message });
   }
 
   // default Express error handler

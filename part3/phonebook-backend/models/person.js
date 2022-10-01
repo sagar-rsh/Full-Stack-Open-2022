@@ -12,8 +12,14 @@ mongoose
   });
 
 const personSchema = new mongoose.Schema({
-  name: String,
-  number: String,
+  name: {
+    type: String,
+    minlength: [3, 'Name has to be atleast 3 characters long'],
+  },
+  number: {
+    type: String,
+    match: [/^\d{2,3}-\d+$/, 'Please Enter a Valid Phone number'],
+  },
 });
 
 personSchema.set('toJSON', {
