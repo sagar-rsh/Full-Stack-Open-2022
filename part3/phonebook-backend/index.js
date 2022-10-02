@@ -15,11 +15,11 @@ app.use(
   morgan(':method :url :status :res[content-length] - :response-time ms :data')
 );
 
-app.get('/', (request, response, next) => {
+app.get('/', (request, response) => {
   response.send('<h1>Hello World</h1>');
 });
 
-app.get('/info', (request, response) => {
+app.get('/info', (request, response, next) => {
   const curDate = new Date();
 
   Person.countDocuments({})
